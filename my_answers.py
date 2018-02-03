@@ -10,8 +10,8 @@ import keras
 # and window-size into a set of input/output pairs for use with our RNN model
 def window_transform_series(series, window_size):
     # containers for input/output pairs
-    X = []
-    y = []
+    X = [series[i:i+window_size] for i in range(len(series) - window_size)]
+    y = [series[i+window_size] for i in range(len(series) - window_size)]
 
     # reshape each 
     X = np.asarray(X)
@@ -23,20 +23,35 @@ def window_transform_series(series, window_size):
 
 # TODO: build an RNN to perform regression on our time series input/output data
 def build_part1_RNN(window_size):
-    pass
+    model = Sequential()
+    model.add(LSTM(5, input_shape=(window_size,1)))
+    model.add(Dense(1))
+    return model
 
 
 ### TODO: return the text input with only ascii lowercase and the punctuation given below included.
 def cleaned_text(text):
     punctuation = ['!', ',', '.', ':', ';', '?']
+    text = text.replace('\r',' ')
+    text = text.replace('\n',' ')
 
+    for i, c in enumerate(text):
+        # c is good character
+        if (ord(c) >= ord('a') and ord(c) <= ord('z')) or (c in punctuation) or (c == ' '):
+            continue
+        # lowercase c if it is capitalize
+        if (ord(c) >= ord('A') and ord(c) <= ord('Z')):
+            text[i] = c.lower()
+            continue
+        # replace by space
+        text = text.replace(c, ' ')
     return text
 
 ### TODO: fill out the function below that transforms the input text and window-size into a set of input/output pairs for use with our RNN model
 def window_transform_text(text, window_size, step_size):
     # containers for input/output pairs
-    inputs = []
-    outputs = []
+    inputs = [text[i:i+window_size] for i in range(0, len(text) - window_size, step_size)]
+    outputs = [text[i+window_size] for i in range(0, len(text) - window_size, step_size)]
 
     return inputs,outputs
 
